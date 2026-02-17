@@ -1,0 +1,41 @@
+# DALPHIN: a multicentric open benchmark for pathology AI copilots
+
+> Vision-language models (VLMs) are rapidly emerging as interactive visual question answering (VQA) systems in digital pathology. Despite growing interest in clinical adoption, their ability to support pathologists as virtual assistants for diagnostic tasks remains poorly understood. Independent, long-term benchmarking is essential to rigorously assess the clinical potential, robustness, and limitations of these AI assistants on diagnostically meaningful tasks. To enable fair evaluation and comparison of pathology AI copilots, we introduce the DigitAL PatHology assIstant beNchmark (DALPHIN), a multicentric open VQA benchmark for pathology AI assistants. DALPHIN consists of 300 cases collected across six healthcare institutions in six countries, covering 130 diagnoses from 14 pathology subspecialties, including non-neoplastic entities and rare cancers. The benchmark comprises 1,236 histopathology images (low-resolution whole-slide images and higher-resolution regions of interest) and 1,757 questions across six tasks: tissue/organ recognition, neoplastic status, neoplastic behavior (benign, malignant, in situ, or uncertain), diagnosis, and case-specific multiple-choice and free-response questions. The images and questions are publicly available on [Zenodo](https://zenodo.org/records/18609450), while the ground truth reference labels are sequestered and only used for automatic performance evaluation on [Grand Challenge](https://dalphin.grand-challenge.org/) to preserve the benchmark's integrity.
+
+### Repository layout
+
+Welcome to the GitHub repository for the DALPHIN benchmark. This repository provides:
+
+* Code to download the dataset from the associated [Zenodo repository](https://zenodo.org/records/18609450)
+* A reference implementation for generating answers on DALPHIN using Vision-Language Model (VLMs)
+* Evaluation code identical to that used on [Grand Challenge](https://dalphin.grand-challenge.org/) for scoring model submissions
+
+The repository is laid out as follows:
+
+* The [`data/`](data/) directory starts out empty and is populated with files after running the [`download_all.sh`](download_all.sh) shell script, which downloads and extracts the dataset files. After extraction, the folder is organized as follows:
+
+```bash
+.
+└── data/
+    ├── images/                 # benchmark images in PNG format
+    └── dalphin_metadata.csv    # benchmark questions and associated metadata
+```
+
+* The [`code/answer_generation/`](code/answer_generation/) directory contains:
+  * A README describing the two answer generation scenarios used in the benchmark
+  * A reference Python implementation for running a VLM on DALPHIN
+* The [`code/gc_evaluation/`](code/gc_evaluation/) directory contains Python code used to evaluate submissions for each task on Grand Challenge. Reference labels and the organ recognition taxonomy are intentionally excluded, so this code is provided solely to illustrate the submission processing and evaluation pipeline.
+
+We describe additional details regarding the dataset on our [Zenodo data repository](https://zenodo.org/records/18609450).
+
+### Quickstart guide
+1. Download all data from Zenodo by running the `download_all.sh` shell script. All data is automatically organized in the directory layout as described above.
+2. To run your VLM on DALPHIN, consult the [README](code/answer_generation/README.md) and adapt the core logic in [generate_answers_cli.py](code/answer_generation/generate_answers_cli.py) to fit your model's specific API and requirements.
+
+### Citation & license
+This GitHub repository is released under the [Apache-2.0 license](LICENSE) license. The data of the DALPHIN benchmark is released under the [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) license.
+
+If you use this benchmark, please cite:
+```
+<PREPRINT FORTHCOMING>
+```
