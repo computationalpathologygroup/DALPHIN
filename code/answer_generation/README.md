@@ -1,6 +1,6 @@
 # VLM Answer Generation for pathology VQA
 
-This document outlines the two scenarios for generating answers using a Vision-Language Model (VLM) for pathology Visual Question Answering (VQA). The accompanying script, `generate_answers_cli.py`, serves as a reference implementation for these scenarios.
+This document outlines the two scenarios for generating answers using a Vision-Language Model (VLM) for pathology Visual Question Answering (VQA). The accompanying script, `generate_answers_sync.py`, serves as the reference implementation for these scenarios.
 
 ## General Premise
 
@@ -24,38 +24,108 @@ This scenario simulates a more realistic diagnostic workflow where a pathologist
 
 ---
 
-## Implementation Guide for New Models
+## Quick Start
 
-The script `generate_answers_cli.py` provides a template for implementing both scenarios. Your team should adapt the core logic to fit your model's specific API and requirements. The key entry point is the `--mode` flag, which switches between `independent` and `feedback`.
-Any environment variables should be set in your shell or in the `.env` file. You can refer to `.env.template` for the required variables.
-Note: The script is made to asynchronously call the model API for efficiency, but the core logic can be adapted to synchronous calls if needed.
+1. Copy `.env.template` to `.env` and fill in your values:
 
-### For Independent Generation (`--mode independent`)
+   ```
+   cp .env.template .env
+   ```
 
-This logic is primarily handled by the `process_independent_task` function.
+2. Install dependencies:
 
-- **Reference Function:** `process_independent_task(idx, row, model_info, column_name)`
-- **How it works:**
-    1. For each question (a `row` in the data), this function is called.
-    2. It retrieves the question text (`row['question']`) and preamble (`row['preamble']`).
-    3. It finds and encodes the relevant images using `get_image_paths_for_row` and `encode_image`.
-    4. It constructs a `messages` payload containing just the current question and images.
-    5. It calls the model API via `call_api_with_retry`.
+   ```
+   pip install -r requirements.txt
+   ```
 
-To adapt this, you should replicate the process of creating a single, stateless prompt for each question and sending it to your model endpoint.
+3. Run the script:
 
-### For Contextual (Feedback) Generation (`--mode feedback`)
+   ```bash
+   # Independent mode
+   python generate_answers_sync.py --mode independent
 
-This logic is handled by the `process_feedback_task` function, which processes all questions for a single medical case.
+   # Feedback mode
+   python generate_answers_sync.py --mode feedback
+   ```
 
-- **Reference Function:** `process_feedback_task(case_df, model_info, full_df_ref)`
-- **How it works:**
-    1. The data is grouped by `case-id`, and this function receives a dataframe (`case_df`) for one case.
-    2. A `chat_history` list is initialized to store the conversation.
-    3. The function iterates through the questions *sequentially* within the case.
-    4. For each question, it constructs the user message with the text and images.
-    5. Crucially, it prepends the entire `chat_history` to the current message before making the API call.
-    6. After the model responds, both the user message and the assistant's answer are appended to the `chat_history` list, building the context for the next turn.
-    7. A special instruction, "The following question(s) and image(s) are related to the same medical case," is added to the very first question of a case to prime the model.
+---
 
-To adapt this, you must implement a similar loop for each case that maintains a running list of the conversation turns and includes this history in each subsequent API call for that case.
+## Adapting for Your Model
+
+The script is designed so that you only need to modify **one function**: `generate_answer` in `generate_answers_sync.py`.
+
+```python
+def generate_answer(messages: list[dict], model_name: str) -> str:
+    """
+    Call your model and return the answer as a string.
+
+    Args:
+        messages: A list of message dicts in OpenAI chat format. Each message
+                  has a "role" ("user" or "assistant") and "content" (a string
+                  or a list of content parts with text and base64 images).
+        model_name: The model identifier string (from MODEL_NAME env var).
+
+    Returns:
+        The model's answer as a plain string.
+    """
+```
+
+The default implementation uses the OpenAI SDK, which is compatible with many providers (OpenAI, Google Gemini via their OpenAI-compatible endpoint, vLLM, Ollama, etc.). If your provider supports the OpenAI chat format, you may only need to change `API_KEY`, `API_BASE_URL`, and `MODEL_NAME` in the `.env` file without modifying any code.
+
+The rest of the script handles data loading, image encoding, chat history management, and saving results, so you should not need to change any of that.
+
+### Message Format
+
+The `messages` argument follows the [OpenAI chat completions format](https://platform.openai.com/docs/api-reference/chat). For a single-turn (independent) request, it looks like:
+
+```python
+[
+    {
+        "role": "user",
+        "content": [
+            {"type": "text", "text": "Preamble text\nQuestion text"},
+            {"type": "image_url", "image_url": {"url": "data:image/png;base64,..."}}
+        ]
+    }
+]
+```
+
+For multi-turn (feedback) requests, previous turns are included:
+
+```python
+[
+    {"role": "user", "content": [...]},       # Question 1
+    {"role": "assistant", "content": "..."},   # Model's answer to Q1
+    {"role": "user", "content": [...]},       # Question 2 (current)
+]
+```
+
+---
+
+## How the Two Modes Work
+
+### Independent Mode (`--mode independent`)
+
+Handled by `run_independent()`:
+
+1. Iterates over each row in the dataset.
+2. For each unanswered question, builds a single-turn message with text and images.
+3. Calls `generate_answer` and saves the result.
+
+### Feedback Mode (`--mode feedback`)
+
+Handled by `run_feedback()`:
+
+1. Groups data by `case-id`.
+2. For each case, iterates through its questions **sequentially**.
+3. Builds a growing `chat_history` with all prior Q&A turns from the same case.
+4. Calls `generate_answer` with the full history prepended to the current question.
+5. Adds an introductory instruction ("The following question(s) and image(s) are related to the same medical case.") to the first question of each case.
+
+### Resuming Interrupted Runs
+
+Both modes support resuming. If the script is interrupted, simply run it again as it will load the existing output file and skip questions that already have answers.
+
+## Reproducibility
+
+The `generate_answers_async.py` script was used to generate the answers for the OpenAI and Gemini models in the DALPHIN study. `generate_answers_sync.py` is a simplified version that runs synchronously for easier debugging and adaptation to other models. The core logic for message formatting and history management is the same in both scripts.
