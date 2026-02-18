@@ -23,14 +23,15 @@ The repository is laid out as follows:
 
 * The [`code/answer_generation/`](code/answer_generation/) directory contains:
   * A README describing the two answer generation scenarios used in the benchmark
-  * A reference Python implementation for running a VLM on DALPHIN
+  * A synchronous reference implementation ([`generate_answers_sync.py`](code/answer_generation/generate_answers_sync.py)) for running a VLM on DALPHIN, designed to be easily adapted to any model
+  * The original asynchronous script ([`generate_answers_async.py`](code/answer_generation/generate_answers_async.py)) used for the DALPHIN study
 * The [`code/gc_evaluation/`](code/gc_evaluation/) directory contains Python code used to evaluate submissions for each task on Grand Challenge. Reference labels and the organ recognition taxonomy are intentionally excluded, so this code is provided solely to illustrate the submission processing and evaluation pipeline.
 
 We describe additional details regarding the dataset on our [Zenodo data repository](https://zenodo.org/records/18609450).
 
 ### Quickstart guide
 1. Download all data from Zenodo by running the `download_all.sh` shell script. All data is automatically organized in the directory layout as described above.
-2. To run your VLM on DALPHIN, consult the [README](code/answer_generation/README.md) and adapt the core logic in [generate_answers_cli.py](code/answer_generation/generate_answers_cli.py) to fit your model's specific API and requirements.
+2. To run your VLM on DALPHIN, consult the [answer generation README](code/answer_generation/README.md) and adapt the `generate_answer` function in [`generate_answers_sync.py`](code/answer_generation/generate_answers_sync.py) to fit your model's API.
 
 ### Citation & license
 This GitHub repository is released under the [Apache-2.0 license](LICENSE) license. The data of the DALPHIN benchmark is released under the [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) license.
