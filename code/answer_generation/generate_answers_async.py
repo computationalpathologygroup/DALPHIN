@@ -163,7 +163,7 @@ def get_image_paths_for_row(row: pd.Series) -> List[Path]:
         return []
 
     roi_files: List[str] = []
-    for col in ("thumbnail", "rois"):
+    for col in ("overviews", "rois"):
         val = row.get(col, None)
         if isinstance(val, str) and val.strip():
             roi_files.extend([p.strip() for p in val.split(",") if p.strip()])

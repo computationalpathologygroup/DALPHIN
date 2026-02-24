@@ -158,12 +158,12 @@ def is_value_empty(value) -> bool:
 
 
 def get_image_paths_for_row(row: pd.Series) -> List[Path]:
-    """Collect and deduplicate image paths for a row from 'thumbnail' and 'rois' columns."""
+    """Collect and deduplicate image paths for a row from 'overviews' and 'rois' columns."""
     if not IMAGE_DIR:
         return []
 
     filenames: List[str] = []
-    for col in ("thumbnail", "rois"):
+    for col in ("overviews", "rois"):
         val = row.get(col, None)
         if isinstance(val, str) and val.strip():
             filenames.extend([p.strip() for p in val.split(",") if p.strip()])
