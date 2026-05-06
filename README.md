@@ -38,5 +38,13 @@ This GitHub repository is released under the [Apache-2.0 license](LICENSE). The 
 
 If you use this benchmark, please cite:
 ```
-<PREPRINT FORTHCOMING>
+@misc{lems2026dalphin,
+      title={DALPHIN: Benchmarking Digital Pathology AI Copilots Against Pathologists on an Open Multicentric Dataset}, 
+      author={Carlijn Lems and Sander Moonemans and Natálie Klubíčková and Biagio Brattoli and Taebum Lee and Seokhwi Kim and Veronica Vilaplana and Laura Pons and Sapir Hochman and Mauricio Eduardo Suárez-Franck and Pedro Luis Fernandez and Julius Drachneris and Donatas Petroska and Renaldas Augulis and Arvydas Laurinavicius and Domingos Oliveira and Diana Montezuma and Anouk B. Bouwmeester and Dominique van Midden and Anne-Marie Vos and Shoko Vos and Jolique van Ipenburg and Maschenka Balkenhol and Koen Winkler and Iris Nagtegaal and Konnie Hebeda and Uta Flucke and Katrien Grünberg and Josef Skopal and Brinder S. Chohan and Jordi Temprana-Salvador and Enrico Munari and Luca Cima and Giulia Querzoli and Yosamin Gonzalez Belisario and Jaeike W. Faber and Geert J. L. H. van Leenders and Jan H. von der Thüsen and Lodewijk A. A. Brosens and Ronald R. de Krijger and Pieter Wesseling and Sandrine Florquin and Mateusz Maniewski and Adam Kowalewski and Robert Barna and Dina Tiniakos and Joan Lop Gros and Rogier Donders and Jake S. F. Maurits and Ming Yang Lu and Chengkuan Chen and Faisal Mahmood and Jeroen van der Laak and Nadieh Khalili and Frédérique Meeuwsen and Francesco Ciompi},
+      year={2026},
+      eprint={2605.03544},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2605.03544}, 
+}
 ```
